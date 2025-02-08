@@ -16,7 +16,7 @@ public class HorarioController {
 
     @GetMapping
     public ResponseEntity<List<HorarioDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.findAll(null));
     }
 
     @PostMapping

@@ -17,7 +17,7 @@ public class PacienteController {
 
     @GetMapping
     public ResponseEntity<List<PacienteDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.findAll(null));
     }
 
     @PostMapping

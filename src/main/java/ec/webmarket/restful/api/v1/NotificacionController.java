@@ -17,7 +17,7 @@ public class NotificacionController {
 
     @GetMapping
     public ResponseEntity<List<NotificacionDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.findAll(null));
     }
 
     @PostMapping

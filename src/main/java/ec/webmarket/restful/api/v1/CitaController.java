@@ -16,7 +16,7 @@ public class CitaController {
 
     @GetMapping
     public ResponseEntity<List<CitaDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.findAll(null));
     }
 
     @PostMapping
