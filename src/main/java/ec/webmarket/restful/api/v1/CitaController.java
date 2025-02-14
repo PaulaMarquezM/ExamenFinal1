@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import ec.webmarket.restful.common.ApiConstants;
 import ec.webmarket.restful.dto.v1.CitaDTO;
 import ec.webmarket.restful.service.crud.CitaService;
-
 import java.util.List;
 
 @RestController
@@ -24,12 +23,12 @@ public class CitaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CitaDTO> update(@PathVariable Long id, @RequestBody CitaDTO dto) {
+    public ResponseEntity<CitaDTO> update(@PathVariable("id") Long id, @RequestBody CitaDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancel(@PathVariable Long id) {
+    public ResponseEntity<Void> cancel(@PathVariable("id") Long id) {
         if (service.cancel(id)) {
             return ResponseEntity.noContent().build();
         }
@@ -42,12 +41,12 @@ public class CitaController {
     }
 
     @GetMapping("/paciente/{id}")
-    public ResponseEntity<List<CitaDTO>> getHistorialByPaciente(@PathVariable Long id) {
+    public ResponseEntity<List<CitaDTO>> getHistorialByPaciente(@PathVariable("id") Long id) {
         return ResponseEntity.ok(service.findByPaciente(id));
     }
 
     @GetMapping("/odontologo/{id}")
-    public ResponseEntity<List<CitaDTO>> getHistorialByOdontologo(@PathVariable Long id) {
+    public ResponseEntity<List<CitaDTO>> getHistorialByOdontologo(@PathVariable("id") Long id) {
         return ResponseEntity.ok(service.findByOdontologo(id));
     }
 }

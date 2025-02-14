@@ -53,13 +53,20 @@ public class CitaService {
     }
 
     public CitaDTO update(Long id, CitaDTO dto) {
-        return citaRepository.findById(id)
-                .map(cita -> {
-                    cita.setFechaHora(dto.getFechaHora());
-                    cita.setMotivoConsulta(dto.getMotivoConsulta());
-                    cita.setEstado(Cita.EstadoCita.valueOf(dto.getEstado()));
-                    return toDTO(citaRepository.save(cita));
-                }).orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada con ID: " + id));
+
+        cita.setFechaHora(dto.getFechaHora());
+        cita.setMotivoConsulta(dto.getMotivoConsulta());
+        
+        // Validar estado antes de convertirlo
+        try {
+            cita.setEstado(Cita.EstadoCita.valueOf(dto.getEstado()));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado inválido: " + dto.getEstado());
+        }
+
+        return toDTO(citaRepository.save(cita));
     }
 
     public boolean cancel(Long id) {
