@@ -1,38 +1,69 @@
 package ec.webmarket.restful.service.crud;
+
+import ec.webmarket.restful.domain.Cita;
+import ec.webmarket.restful.dto.v1.CitaDTO;
+import ec.webmarket.restful.persistence.CitaRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ec.webmarket.restful.domain.*;
-import ec.webmarket.restful.dto.v1.*;
-import ec.webmarket.restful.persistence.*;
-import ec.webmarket.restful.service.GenericCrudServiceImpl;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class CitaService extends GenericCrudServiceImpl<Cita, CitaDTO> {
-    @Autowired
-    private CitaRepository repository;
-    private ModelMapper modelMapper = new ModelMapper();
+public class CitaService {
 
-    @Override
-    public Optional<Cita> find(CitaDTO dto) {
-        return repository.findById(dto.getId());
+    private final CitaRepository repository;
+    private final ModelMapper modelMapper;
+
+    public CitaService(CitaRepository repository) {
+        this.repository = repository;
+        this.modelMapper = new ModelMapper();
     }
 
-    @Override
-    public Cita mapToDomain(CitaDTO dto) {
-        return modelMapper.map(dto, Cita.class);
+    public CitaDTO create(CitaDTO dto) {
+        Cita cita = modelMapper.map(dto, Cita.class);
+        Cita savedCita = repository.save(cita);
+        return modelMapper.map(savedCita, CitaDTO.class);
     }
 
-    @Override
-    public CitaDTO mapToDto(Cita domain) {
-        return modelMapper.map(domain, CitaDTO.class);
-    }
-
-    public void cancelarCita(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("No se encontró una cita con el ID: " + id);
+    public CitaDTO update(Long id, CitaDTO dto) {
+        Optional<Cita> optionalCita = repository.findById(id);
+        if (optionalCita.isPresent()) {
+            Cita cita = optionalCita.get();
+            modelMapper.map(dto, cita);
+            Cita updatedCita = repository.save(cita);
+            return modelMapper.map(updatedCita, CitaDTO.class);
         }
-        repository.deleteById(id);
+        return null;
+    }
+
+    public boolean cancel(Long id) {
+        Optional<Cita> optionalCita = repository.findById(id);
+        if (optionalCita.isPresent()) {
+            repository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    public List<CitaDTO> findAll() {
+        return repository.findAll().stream()
+                .map(cita -> modelMapper.map(cita, CitaDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<CitaDTO> findByPaciente(Long pacienteId) {
+        return repository.findAll().stream()
+                .filter(cita -> cita.getPaciente().getId().equals(pacienteId))
+                .map(cita -> modelMapper.map(cita, CitaDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<CitaDTO> findByOdontologo(Long odontologoId) {
+        return repository.findAll().stream()
+                .filter(cita -> cita.getOdontologo().getId().equals(odontologoId))
+                .map(cita -> modelMapper.map(cita, CitaDTO.class))
+                .collect(Collectors.toList());
     }
 }

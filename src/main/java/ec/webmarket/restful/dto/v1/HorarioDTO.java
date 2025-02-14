@@ -9,6 +9,5 @@ public class HorarioDTO {
     private LocalDateTime inicio;
     private LocalDateTime fin;
     private Long odontologoId;
-    private LocalDateTime fechaCreacion;
-    private boolean disponible; // Nuevo atributo
+    private boolean disponible; 
 }
