@@ -1,6 +1,5 @@
 package ec.webmarket.restful.service.crud;
 
-<<<<<<< HEAD
 import ec.webmarket.restful.dto.v1.OdontologoDTO;
 import java.util.List;
 =======
@@ -12,13 +11,11 @@ import ec.webmarket.restful.dto.v1.*;
 import ec.webmarket.restful.persistence.*;
 import ec.webmarket.restful.service.GenericCrudServiceImpl;
 import java.util.Optional;
->>>>>>> refs/remotes/origin/master
 
-<<<<<<< HEAD
 public interface OdontologoService {
     OdontologoDTO create(OdontologoDTO dto);
     List<OdontologoDTO> findAll();
-=======
+
 @Service
 public class OdontologoService extends GenericCrudServiceImpl<Odontologo, OdontologoDTO> {
     @Autowired
@@ -38,6 +35,6 @@ public class OdontologoService extends GenericCrudServiceImpl<Odontologo, Odonto
     @Override
     public OdontologoDTO mapToDto(Odontologo domain) {
         return modelMapper.map(domain, OdontologoDTO.class);
-    }
->>>>>>> refs/remotes/origin/master
+    	}
+	}
 }

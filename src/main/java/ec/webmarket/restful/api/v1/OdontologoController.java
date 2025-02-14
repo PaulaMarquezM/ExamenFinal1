@@ -38,4 +38,4 @@ public class OdontologoController {
         return ResponseEntity.ok(service.findAll(null)); 
     }
 }
-
+//:)
