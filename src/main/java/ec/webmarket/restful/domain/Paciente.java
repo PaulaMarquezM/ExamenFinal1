@@ -1,5 +1,6 @@
 package ec.webmarket.restful.domain;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,4 +17,7 @@ public class Paciente {
     private String apellido;
     private String telefono;
     private String email;
+
+    
+  
 }

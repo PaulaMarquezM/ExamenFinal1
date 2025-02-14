@@ -1,8 +1,7 @@
 package ec.webmarket.restful.dto.v1;
 
-
-import java.time.LocalDateTime;
 import lombok.Data;
+import java.time.LocalDateTime;
 
 @Data
 public class PacienteDTO {
@@ -11,5 +10,4 @@ public class PacienteDTO {
     private String apellido;
     private String telefono;
     private String email;
-    private LocalDateTime fechaCreacion;
 }
