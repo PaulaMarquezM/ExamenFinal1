@@ -5,17 +5,17 @@ import java.util.Optional;
 
 public interface GenericCrudService<DOMAIN, DTO> {
 
-    DTO create(DTO dto);
+	public DTO create(DTO dto);
 
-    DTO update(DTO dto);
+	public DTO update(DTO dto);
 
-    void delete(DTO dto);
+	public void delete(DTO dto);
 
-    Optional<DOMAIN> find(DTO dto);
+	public abstract Optional<DOMAIN> find(DTO dto);
 
-    List<DTO> findAll(); 
+	public List<DTO> findAll(DTO dto);
 
-    DOMAIN mapToDomain(DTO dto);
+	DOMAIN mapToDomain(DTO dto);
 
-    DTO mapToDto(DOMAIN domain);
+	DTO mapToDto(DOMAIN domain);
 }
