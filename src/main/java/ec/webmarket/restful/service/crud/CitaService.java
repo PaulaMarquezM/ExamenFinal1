@@ -1,9 +1,14 @@
 package ec.webmarket.restful.service.crud;
 
 import ec.webmarket.restful.domain.Cita;
+import ec.webmarket.restful.domain.Horario;
+import ec.webmarket.restful.domain.Odontologo;
+import ec.webmarket.restful.domain.Paciente;
 import ec.webmarket.restful.dto.v1.CitaDTO;
 import ec.webmarket.restful.persistence.CitaRepository;
-import org.modelmapper.ModelMapper;
+import ec.webmarket.restful.persistence.HorarioRepository;
+import ec.webmarket.restful.persistence.OdontologoRepository;
+import ec.webmarket.restful.persistence.PacienteRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,57 +18,79 @@ import java.util.stream.Collectors;
 @Service
 public class CitaService {
 
-    private final CitaRepository repository;
-    private final ModelMapper modelMapper;
+    private final CitaRepository citaRepository;
+    private final PacienteRepository pacienteRepository;
+    private final OdontologoRepository odontologoRepository;
+    private final HorarioRepository horarioRepository;
 
-    public CitaService(CitaRepository repository) {
-        this.repository = repository;
-        this.modelMapper = new ModelMapper();
+    public CitaService(CitaRepository citaRepository, PacienteRepository pacienteRepository,
+                       OdontologoRepository odontologoRepository, HorarioRepository horarioRepository) {
+        this.citaRepository = citaRepository;
+        this.pacienteRepository = pacienteRepository;
+        this.odontologoRepository = odontologoRepository;
+        this.horarioRepository = horarioRepository;
     }
 
     public CitaDTO create(CitaDTO dto) {
-        Cita cita = modelMapper.map(dto, Cita.class);
-        Cita savedCita = repository.save(cita);
-        return modelMapper.map(savedCita, CitaDTO.class);
+        Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
+                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
+        
+        Odontologo odontologo = odontologoRepository.findById(dto.getOdontologoId())
+                .orElseThrow(() -> new IllegalArgumentException("Odontólogo no encontrado"));
+        
+        Horario horario = horarioRepository.findById(dto.getHorarioId())
+                .orElseThrow(() -> new IllegalArgumentException("Horario no encontrado"));
+
+        Cita cita = new Cita();
+        cita.setPaciente(paciente);
+        cita.setOdontologo(odontologo);
+        cita.setHorario(horario);
+        cita.setFechaHora(dto.getFechaHora());
+        cita.setMotivoConsulta(dto.getMotivoConsulta());
+        cita.setEstado(Cita.EstadoCita.valueOf(dto.getEstado()));
+
+        return toDTO(citaRepository.save(cita));
     }
 
     public CitaDTO update(Long id, CitaDTO dto) {
-        Optional<Cita> optionalCita = repository.findById(id);
-        if (optionalCita.isPresent()) {
-            Cita cita = optionalCita.get();
-            modelMapper.map(dto, cita);
-            Cita updatedCita = repository.save(cita);
-            return modelMapper.map(updatedCita, CitaDTO.class);
-        }
-        return null;
+        return citaRepository.findById(id)
+                .map(cita -> {
+                    cita.setFechaHora(dto.getFechaHora());
+                    cita.setMotivoConsulta(dto.getMotivoConsulta());
+                    cita.setEstado(Cita.EstadoCita.valueOf(dto.getEstado()));
+                    return toDTO(citaRepository.save(cita));
+                }).orElseThrow(() -> new RuntimeException("Cita no encontrada"));
     }
 
     public boolean cancel(Long id) {
-        Optional<Cita> optionalCita = repository.findById(id);
-        if (optionalCita.isPresent()) {
-            repository.deleteById(id);
+        return citaRepository.findById(id).map(cita -> {
+            cita.setEstado(Cita.EstadoCita.CANCELADA);
+            citaRepository.save(cita);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public List<CitaDTO> findAll() {
-        return repository.findAll().stream()
-                .map(cita -> modelMapper.map(cita, CitaDTO.class))
-                .collect(Collectors.toList());
+        return citaRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     public List<CitaDTO> findByPaciente(Long pacienteId) {
-        return repository.findAll().stream()
-                .filter(cita -> cita.getPaciente().getId().equals(pacienteId))
-                .map(cita -> modelMapper.map(cita, CitaDTO.class))
-                .collect(Collectors.toList());
+        return citaRepository.findByPacienteId(pacienteId).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     public List<CitaDTO> findByOdontologo(Long odontologoId) {
-        return repository.findAll().stream()
-                .filter(cita -> cita.getOdontologo().getId().equals(odontologoId))
-                .map(cita -> modelMapper.map(cita, CitaDTO.class))
-                .collect(Collectors.toList());
+        return citaRepository.findByOdontologoId(odontologoId).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    private CitaDTO toDTO(Cita cita) {
+        CitaDTO dto = new CitaDTO();
+        dto.setId(cita.getId());
+        dto.setPacienteId(cita.getPaciente().getId());
+        dto.setOdontologoId(cita.getOdontologo().getId());
+        dto.setHorarioId(cita.getHorario().getId());
+        dto.setFechaHora(cita.getFechaHora());
+        dto.setMotivoConsulta(cita.getMotivoConsulta());
+        dto.setEstado(cita.getEstado().name());
+        return dto;
     }
 }

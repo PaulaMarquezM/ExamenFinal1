@@ -6,12 +6,10 @@ import lombok.Data;
 @Data
 public class CitaDTO {
     private Long id;
-    private LocalDateTime fechaHora;
-    private String tipoConsulta;
     private Long pacienteId;
     private Long odontologoId;
     private Long horarioId;
-    private LocalDateTime fechaCreacion;
-    private String estado;
+    private LocalDateTime fechaHora;
     private String motivoConsulta;
+    private String estado;
 }

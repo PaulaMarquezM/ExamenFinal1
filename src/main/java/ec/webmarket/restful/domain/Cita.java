@@ -12,23 +12,25 @@ public class Cita {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime fechaHora;
-    private String tipoConsulta;
 
     @ManyToOne
+    @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 
     @ManyToOne
+    @JoinColumn(name = "odontologo_id", nullable = false)
     private Odontologo odontologo;
     
     @ManyToOne
+    @JoinColumn(name = "horario_id", nullable = false)
     private Horario horario;
-    
+
+    private LocalDateTime fechaHora; // Fecha y hora de la cita
+    private String motivoConsulta;   // Motivo de la consulta
+
     @Enumerated(EnumType.STRING)
-    private EstadoCita estado;
-    
-    private String motivoConsulta;
-    
+    private EstadoCita estado; // Estado de la cita (Confirmada, Cancelada, Reprogramada)
+
     public enum EstadoCita {
         CONFIRMADA, CANCELADA, REPROGRAMADA
     }

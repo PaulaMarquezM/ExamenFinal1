@@ -1,12 +1,10 @@
 package ec.webmarket.restful.persistence;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import ec.webmarket.restful.domain.Cita;
 
 public interface CitaRepository extends JpaRepository<Cita, Long> {
-    List<Cita> findByFechaHoraBetween(LocalDateTime inicio, LocalDateTime fin);
+    List<Cita> findByPacienteId(Long pacienteId);
+    List<Cita> findByOdontologoId(Long odontologoId);
 }
