@@ -38,3 +38,4 @@ public class HorarioController {
         return ResponseEntity.ok(horarioService.obtenerHorariosDisponibles(estado));
     }
 }
+

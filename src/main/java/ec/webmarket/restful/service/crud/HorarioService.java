@@ -46,7 +46,13 @@ public class HorarioService {
         return horarios.stream().map(this::toDTO).collect(Collectors.toList());
     }
     
-    
+    public List<HorarioDTO> obtenerHorariosPorFecha(LocalDate fecha) {
+        List<Horario> horarios = horarioRepository.findByInicioBetween(
+            fecha.atStartOfDay(), // 00:00:00
+            fecha.atTime(23, 59, 59) // 23:59:59
+        );
+        return horarios.stream().map(this::toDTO).collect(Collectors.toList());
+    }
    
     public List<HorarioDTO> obtenerHorariosDisponibles(boolean disponible) {
         List<Horario> horarios = horarioRepository.findByDisponible(disponible);
