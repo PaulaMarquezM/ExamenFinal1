@@ -5,7 +5,9 @@ import ec.webmarket.restful.dto.v1.HorarioDTO;
 import ec.webmarket.restful.service.crud.HorarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -23,19 +25,29 @@ public class HorarioController {
         return ResponseEntity.ok(horarioService.crearHorario(horarioDTO));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<HorarioDTO> actualizarHorario(@PathVariable Long id, @RequestBody HorarioDTO horarioDTO) {
+        return ResponseEntity.ok(horarioService.actualizarHorario(id, horarioDTO));
+    }
+
     @GetMapping("/odontologo/{odontologoId}")
     public ResponseEntity<List<HorarioDTO>> obtenerHorariosPorOdontologo(@PathVariable Long odontologoId) {
         return ResponseEntity.ok(horarioService.obtenerHorariosPorOdontologo(odontologoId));
     }
 
-    @GetMapping("/fecha/{fecha}")
-    public ResponseEntity<List<HorarioDTO>> obtenerHorariosPorFecha(@PathVariable LocalDate fecha) {
-        return ResponseEntity.ok(horarioService.obtenerHorariosPorFecha(fecha));
+    @GetMapping("/fecha")
+    public ResponseEntity<List<HorarioDTO>> obtenerHorariosPorFecha(@RequestParam String fecha) {
+        LocalDate localDate = LocalDate.parse(fecha, DateTimeFormatter.ISO_DATE);
+        return ResponseEntity.ok(horarioService.obtenerHorariosPorFecha(localDate));
     }
 
-    @GetMapping("/disponibles/{estado}")
-    public ResponseEntity<List<HorarioDTO>> obtenerHorariosDisponibles(@PathVariable boolean estado) {
+    @GetMapping("/disponibles")
+    public ResponseEntity<List<HorarioDTO>> obtenerHorariosDisponibles(@RequestParam boolean estado) {
         return ResponseEntity.ok(horarioService.obtenerHorariosDisponibles(estado));
     }
-}
+    @GetMapping
+    public ResponseEntity<List<HorarioDTO>> obtenerTodosLosHorarios() {
+        return ResponseEntity.ok(horarioService.obtenerTodosLosHorarios());
+    }
 
+}

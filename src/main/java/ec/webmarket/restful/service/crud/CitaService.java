@@ -10,7 +10,6 @@ import ec.webmarket.restful.persistence.HorarioRepository;
 import ec.webmarket.restful.persistence.OdontologoRepository;
 import ec.webmarket.restful.persistence.PacienteRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,6 +40,10 @@ public class CitaService {
         Horario horario = horarioRepository.findById(dto.getHorarioId())
                 .orElseThrow(() -> new IllegalArgumentException("Horario no encontrado"));
 
+        if (!horario.isDisponible()) {
+            throw new IllegalArgumentException("El horario seleccionado no está disponible.");
+        }
+
         Cita cita = new Cita();
         cita.setPaciente(paciente);
         cita.setOdontologo(odontologo);
@@ -48,6 +51,10 @@ public class CitaService {
         cita.setFechaHora(dto.getFechaHora());
         cita.setMotivoConsulta(dto.getMotivoConsulta());
         cita.setEstado(Cita.EstadoCita.valueOf(dto.getEstado()));
+
+        // Marcar el horario como no disponible
+        horario.setDisponible(false);
+        horarioRepository.save(horario);
 
         return toDTO(citaRepository.save(cita));
     }
@@ -58,8 +65,7 @@ public class CitaService {
 
         cita.setFechaHora(dto.getFechaHora());
         cita.setMotivoConsulta(dto.getMotivoConsulta());
-        
-        // Validar estado antes de convertirlo
+
         try {
             cita.setEstado(Cita.EstadoCita.valueOf(dto.getEstado()));
         } catch (IllegalArgumentException e) {
@@ -72,6 +78,8 @@ public class CitaService {
     public boolean cancel(Long id) {
         return citaRepository.findById(id).map(cita -> {
             cita.setEstado(Cita.EstadoCita.CANCELADA);
+            cita.getHorario().setDisponible(true); // Liberar el horario
+            horarioRepository.save(cita.getHorario());
             citaRepository.save(cita);
             return true;
         }).orElse(false);

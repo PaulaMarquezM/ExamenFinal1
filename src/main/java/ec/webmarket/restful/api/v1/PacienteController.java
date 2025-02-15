@@ -1,32 +1,46 @@
 package ec.webmarket.restful.api.v1;
 
-import ec.webmarket.restful.common.ApiConstants;
-import ec.webmarket.restful.dto.v1.PacienteDTO;
-import ec.webmarket.restful.service.crud.PacienteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
+import ec.webmarket.restful.common.ApiConstants;
+import ec.webmarket.restful.dto.v1.PacienteDTO;
+import ec.webmarket.restful.security.ApiResponseDTO;
+import ec.webmarket.restful.service.crud.PacienteService;
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(ApiConstants.URI_API_V1_PACIENTE) 
+@RequestMapping(value = { ApiConstants.URI_API_V1_PACIENTE })
 public class PacienteController {
 
-    private final PacienteService pacienteService;
+    @Autowired
+    private PacienteService entityService;
 
-    public PacienteController(PacienteService pacienteService) {
-        this.pacienteService = pacienteService;
+    @GetMapping
+    public ResponseEntity<?> getAll() {
+        return new ResponseEntity<>(new ApiResponseDTO<>(true, entityService.findAll(new PacienteDTO())), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<PacienteDTO> crearPaciente(@RequestBody PacienteDTO pacienteDTO) {
-        PacienteDTO nuevoPaciente = pacienteService.crearPaciente(pacienteDTO);
-        return ResponseEntity.ok(nuevoPaciente);
+    public ResponseEntity<?> create(@Valid @RequestBody PacienteDTO dto) {
+        try {
+            PacienteDTO createdDto = entityService.create(dto);
+            return new ResponseEntity<>(new ApiResponseDTO<>(true, createdDto), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponseDTO<>(false, "Error al crear el paciente: " + e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PacienteDTO> actualizarPaciente(@PathVariable Long id, @RequestBody PacienteDTO pacienteDTO) {
-        return pacienteService.actualizarPaciente(id, pacienteDTO)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PutMapping
+    public ResponseEntity<?> update(@Valid @RequestBody PacienteDTO dto) {
+        try {
+            PacienteDTO updatedDto = entityService.update(dto);
+            return new ResponseEntity<>(new ApiResponseDTO<>(true, updatedDto), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ApiResponseDTO<>(false, "Error al actualizar el paciente: " + e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
     }
+
 }
