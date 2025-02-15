@@ -6,6 +6,7 @@ import ec.webmarket.restful.dto.v1.HorarioDTO;
 import ec.webmarket.restful.persistence.HorarioRepository;
 import ec.webmarket.restful.persistence.OdontologoRepository;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,7 @@ public class HorarioService {
 
     public HorarioDTO crearHorario(HorarioDTO dto) {
         Horario horario = toEntity(dto);
-        
-        // Validar que el odontólogo existe antes de asignarlo
+
         if (dto.getOdontologoId() != null) {
             Optional<Odontologo> odontologoOpt = odontologoRepository.findById(dto.getOdontologoId());
             if (odontologoOpt.isPresent()) {
@@ -41,11 +41,26 @@ public class HorarioService {
         return toDTO(savedHorario);
     }
 
+    public HorarioDTO actualizarHorario(Long id, HorarioDTO dto) {
+        Optional<Horario> optionalHorario = horarioRepository.findById(id);
+        if (optionalHorario.isEmpty()) {
+            throw new IllegalArgumentException("No se encontró un horario con el ID proporcionado.");
+        }
+
+        Horario horario = optionalHorario.get();
+        horario.setInicio(dto.getInicio());
+        horario.setFin(dto.getFin());
+        horario.setDisponible(dto.isDisponible());
+
+        Horario updatedHorario = horarioRepository.save(horario);
+        return toDTO(updatedHorario);
+    }
+
     public List<HorarioDTO> obtenerHorariosPorOdontologo(Long odontologoId) {
         List<Horario> horarios = horarioRepository.findByOdontologoId(odontologoId);
         return horarios.stream().map(this::toDTO).collect(Collectors.toList());
     }
-    
+
     public List<HorarioDTO> obtenerHorariosPorFecha(LocalDate fecha) {
         List<Horario> horarios = horarioRepository.findByInicioBetween(
             fecha.atStartOfDay(), // 00:00:00
@@ -53,11 +68,17 @@ public class HorarioService {
         );
         return horarios.stream().map(this::toDTO).collect(Collectors.toList());
     }
-   
+
     public List<HorarioDTO> obtenerHorariosDisponibles(boolean disponible) {
         List<Horario> horarios = horarioRepository.findByDisponible(disponible);
         return horarios.stream().map(this::toDTO).collect(Collectors.toList());
     }
+    
+    public List<HorarioDTO> obtenerTodosLosHorarios() {
+        List<Horario> horarios = horarioRepository.findAll();
+        return horarios.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
 
     private HorarioDTO toDTO(Horario horario) {
         HorarioDTO dto = new HorarioDTO();
