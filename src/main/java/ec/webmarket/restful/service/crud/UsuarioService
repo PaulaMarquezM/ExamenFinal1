@@ -1,0 +1,45 @@
+package ec.webmarket.restful.service.crud;
+
+import ec.webmarket.restful.domain.Usuario;
+import ec.webmarket.restful.dto.v1.UsuarioDTO;
+import ec.webmarket.restful.persistence.UsuarioRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import java.util.Optional;
+
+@Service
+public class UsuarioService {
+    
+    private final UsuarioRepository repository;
+    private final ModelMapper modelMapper;
+
+    public UsuarioService(UsuarioRepository repository) {
+        this.repository = repository;
+        this.modelMapper = new ModelMapper();
+    }
+
+    public UsuarioDTO create(UsuarioDTO dto) {
+        Usuario usuario = modelMapper.map(dto, Usuario.class);
+        Usuario savedUsuario = repository.save(usuario);
+        return modelMapper.map(savedUsuario, UsuarioDTO.class);
+    }
+
+    public UsuarioDTO authenticate(String nombreUsuario, String clave) {
+        Optional<Usuario> usuarioOpt = repository.findByNombreUsuario(nombreUsuario);
+        if (usuarioOpt.isPresent() && usuarioOpt.get().getClave().equals(clave)) {
+            return modelMapper.map(usuarioOpt.get(), UsuarioDTO.class);
+        }
+        return null; // Autenticación fallida
+    }
+
+    public UsuarioDTO updatePassword(Long id, String nuevaClave) {
+        Optional<Usuario> usuarioOpt = repository.findById(id);
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            usuario.setClave(nuevaClave);
+            repository.save(usuario);
+            return modelMapper.map(usuario, UsuarioDTO.class);
+        }
+        return null; // Usuario no encontrado
+    }
+}
