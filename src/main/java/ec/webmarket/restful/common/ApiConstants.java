@@ -12,4 +12,5 @@ public final class ApiConstants {
 	public static final String URI_API_V1_CITA = URI_API_V1 + "cita";
 	public static final String URI_API_V1_HORARIO = URI_API_V1 + "horario";
 	public static final String URI_API_V1_NOTIFICACION = URI_API_V1 + "notificacion";
+	public static final String URI_API_V1_IDUSUARIO = URI_API_V1 + "id_usuario";
 }
