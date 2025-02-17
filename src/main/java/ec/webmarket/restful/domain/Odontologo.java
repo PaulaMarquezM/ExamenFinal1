@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class Odontologo {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,4 +25,8 @@ public class Odontologo {
     
     @OneToMany(mappedBy = "odontologo")
     private List<Cita> citas;
+
+    @OneToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 }
