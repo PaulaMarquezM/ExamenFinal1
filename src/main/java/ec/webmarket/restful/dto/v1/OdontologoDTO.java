@@ -13,4 +13,5 @@ public class OdontologoDTO {
     private String especialidad;
     private String telefono;
     private String correo;
+    private UsuarioDTO usuario; // ✅ Este campo debe estar
 }
