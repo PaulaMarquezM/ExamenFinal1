@@ -2,12 +2,16 @@ package ec.webmarket.restful.service.crud;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import ec.webmarket.restful.domain.Paciente;
+import ec.webmarket.restful.domain.Usuario;
 import ec.webmarket.restful.dto.v1.PacienteDTO;
 import ec.webmarket.restful.persistence.PacienteRepository;
+import ec.webmarket.restful.persistence.UsuarioRepository;
 import ec.webmarket.restful.service.GenericCrudServiceImpl;
 
 @Service
@@ -15,8 +19,11 @@ public class PacienteService extends GenericCrudServiceImpl<Paciente, PacienteDT
 
     @Autowired
     private PacienteRepository repository;
+    
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    private ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public Optional<Paciente> find(PacienteDTO dto) {
@@ -33,6 +40,9 @@ public class PacienteService extends GenericCrudServiceImpl<Paciente, PacienteDT
 
     @Override
     public void delete(PacienteDTO dto) {
+        if (dto.getId() == null) {
+            throw new IllegalArgumentException("El ID del paciente es obligatorio para eliminar.");
+        }
         repository.deleteById(dto.getId());
     }
     
@@ -50,28 +60,57 @@ public class PacienteService extends GenericCrudServiceImpl<Paciente, PacienteDT
         return repository.findByNumeroCedula(numeroCedula);
     }
 
+   
     public PacienteDTO create(PacienteDTO dto) {
-        if (dto.getId() != null) {
-            throw new IllegalArgumentException("El ID no debe enviarse en la creación");
-        }
-        if (dto.getNumeroCedula() == null) {
-            throw new IllegalArgumentException("El campo numeroCedula es obligatorio");
-        }
+        validarDatosPaciente(dto);
+        
+        
+        Usuario usuario = usuarioRepository.findById(dto.getUsuario().getId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró un usuario con ID: " + dto.getUsuario().getId()));
 
+  
         Paciente paciente = mapToDomain(dto);
+        paciente.setUsuario(usuario);
+
+    
         paciente = repository.save(paciente);
         return mapToDto(paciente);
     }
 
+   
     public PacienteDTO update(PacienteDTO dto) {
         if (dto.getId() == null) {
-            throw new IllegalArgumentException("El ID es obligatorio para actualizar el paciente");
+            throw new IllegalArgumentException("El ID es obligatorio para actualizar el paciente.");
         }
+
         if (!repository.existsById(dto.getId())) {
-            throw new IllegalArgumentException("No se encontró un paciente con el ID proporcionado");
+            throw new IllegalArgumentException("No se encontró un paciente con el ID proporcionado.");
         }
+
+        validarDatosPaciente(dto);
+
+      
+        Usuario usuario = usuarioRepository.findById(dto.getUsuario().getId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró un usuario con ID: " + dto.getUsuario().getId()));
+
+   
         Paciente paciente = mapToDomain(dto);
+        paciente.setUsuario(usuario);
+
+     
         paciente = repository.save(paciente);
         return mapToDto(paciente);
+    }
+
+  
+    private void validarDatosPaciente(PacienteDTO dto) {
+        if (dto.getNumeroCedula() == null) {
+            throw new IllegalArgumentException("El campo numeroCedula es obligatorio.");
+        }
+        if (dto.getUsuario() == null || dto.getUsuario().getId() == null) {
+            throw new IllegalArgumentException("El usuario es obligatorio y debe tener un ID.");
+        }
     }
 }
